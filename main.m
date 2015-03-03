@@ -22,13 +22,16 @@ D = 324;
 K = 10;
 
 model = init_model(N, D, K);
-W1 = model.W1;
-W2 = model.W2;
+W1 = model.W{1};
+W2 = model.W{2};
+reg = model.reg;
 
-step_size = 1e-2;      % this need be tuned! carefully!
+step_size = 1e-2;      % this need be tuned carefully!
+step_size_decay = 0.95;
 % get_step_size(X, y_train, W1, W2, dW1, dW2, model)
 
-reg = model.reg;
+step_cache{1} = zeros(size(W1));
+step_cache{2} = zeros(size(W2));
 
 bestloss = Inf;
 for i = 1:5000
@@ -36,7 +39,7 @@ for i = 1:5000
     H = [ones(1, N); H];
     
     S = max(0, W2*H);
-    [loss, dS] = svm_loss(S, y_train);   % TODO. model doesn't update.
+    [loss, dS] = softmax_loss(S, y_train);   % TODO. model doesn't update.
    
     dW2 = dS * H';
     dH = W2' * dS;  % 51 * 50000
@@ -54,8 +57,14 @@ for i = 1:5000
             bestW2 = W2;
         end
     end
-    W1 = W1 - dW1 * step_size;
-    W2 = W2 - dW2 * step_size;
+    
+%   using 'momentum' instead of 'SGD'
+%     W1 = W1 - dW1 * step_size;
+%     W2 = W2 - dW2 * step_size;
+    step_cache{1} = step_cache{1} * step_size_decay - dW1 * step_size;
+    step_cache{2} = step_cache{2} * step_size_decay - dW2 * step_size;
+    W1 = W1 + step_cache{1};
+    W2 = W2 + step_cache{2};
 end
 
 

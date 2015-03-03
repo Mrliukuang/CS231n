@@ -10,7 +10,7 @@ function get_step_size(X, y_train, W1, W2, dW1, dW2, model)
     
         S = max(0, W2_new * H);
         fprintf('for step_size: %f, the loss = %f\n',...
-                step_size, svm_loss(S, y_train));
+                step_size, softmax_loss(S, y_train));
         
     end
 end
