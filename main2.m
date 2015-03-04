@@ -1,31 +1,105 @@
+%% using Mini-batch instead of the whole dataset to update parameters.
+
 clc; close all;
+
+load('XY.mat');
 
 N = 50000;
 D = 324;
 K = 10;
 
 model = init_model(N, D, K);
-W1 = model.W1;
-W2 = model.W2;
+reg = model.reg;
 
-H1 = W1*X;
-H2 = max(0, H1);
-H2 = [ones(1, N); H2];
+step_size = 1e-2;
+step_size_decay = 0.95;
 
-S1 = W2*H2;
-S2 = max(0, S1);
+batch_size = 100;
+num_epochs=30;
 
-[loss, dS2] = svm_loss(S2, y_train);
-dS1 = dS2;
-dS1(S1<=0) = 0;
+iterations_per_epoch = N / batch_size;
 
-dW2 = dS1 * H2';      
-dH2 = W2' * dS1;      
+% num_iters = 5000;
+num_iters = num_epochs * iterations_per_epoch;
 
-dH1 = dH2(2:end, :);
-dH1(H1<=0) = 0;
+% if you use mini-batch GD, then you can not use loss to evalutate
+% converage. you need to use cross-validation accuracy.
+val_ind = randi(N, 1000, 1);
+X_val = X(:, val_ind);
+y_val = y_train(val_ind);
 
-dW1 = dH1*X';
+bestloss = inf;
+W = model.W;
+best_acc = 0;
+
+step_cache{1} = zeros(size(W{1}));
+step_cache{2} = zeros(size(W{2}));
+
+for it = 1:15000
+    %% sample one batch examples.
+    batch_mask = randi(N, batch_size, 1);
+    X_batch = X(:, batch_mask);
+    y_batch = y_train(batch_mask);
+    
+    %% load weights;
+    W1 = W{1};
+    W2 = W{2};
+    
+    %% forward pass.
+    H = max(0, W1*X_batch);
+    H = [ones(1, batch_size); H];
+    
+    S = max(0, W2*H);
+    [loss, dS] = softmax_loss(S, y_batch);
+    
+    %% backprop.
+    dW2 = dS * H';
+    dH = W2' * dS;
+    
+    dH(H==0) = 0;
+    dH = dH(2:end, :);
+    dW1 = dH*X_batch';
+    
+    acc = predict(X_val, y_val, W);
+    fprintf('epoch %d accuracy: %f, best accuracy: %f\n', it, acc, best_acc)
+    if acc > best_acc
+        best_acc = acc;
+        bestW{1} = W1;
+        bestW{2} = W2;
+    end
+    
+    %% update the weights.
+    step_cache{1} = step_cache{1} * 0.95 - dW1 * step_size;
+    step_cache{2} = step_cache{2} * 0.95 - dW2 * step_size;
+    W{1} = W1 + step_cache{1};
+    W{2} = W2 + step_cache{2};
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
