@@ -4,7 +4,6 @@ clear; clc; close all;
 load('../data/data_norm.mat')
 load('../data/X_hog.mat')
 
-
 % X_train = [zeros(1, N); X_train];
 
 X = get_feature(X_train);
@@ -66,16 +65,3 @@ for i = 1:5000
     W1 = W1 + step_cache{1};
     W2 = W2 + step_cache{2};
 end
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -1,5 +1,4 @@
 %% using Mini-batch instead of the whole dataset to update parameters.
-
 clc; close all;
 
 load('XY.mat');
@@ -19,8 +18,8 @@ num_epochs=30;
 
 iterations_per_epoch = N / batch_size;
 
-% num_iters = 5000;
-num_iters = num_epochs * iterations_per_epoch;
+num_iters = 15000;
+%num_iters = num_epochs * iterations_per_epoch;
 
 % if you use mini-batch GD, then you can not use loss to evalutate
 % converage. you need to use cross-validation accuracy.
@@ -35,7 +34,8 @@ best_acc = 0;
 step_cache{1} = zeros(size(W{1}));
 step_cache{2} = zeros(size(W{2}));
 
-for it = 1:15000
+val_acc_history = zeros(num_iters, 1);
+for it = 1:num_iters
     %% sample one batch examples.
     batch_mask = randi(N, batch_size, 1);
     X_batch = X(:, batch_mask);
@@ -61,6 +61,7 @@ for it = 1:15000
     dW1 = dH*X_batch';
     
     acc = predict(X_val, y_val, W);
+    val_acc_history(it) = acc;
     fprintf('epoch %d accuracy: %f, best accuracy: %f\n', it, acc, best_acc)
     if acc > best_acc
         best_acc = acc;
@@ -74,43 +75,3 @@ for it = 1:15000
     W{1} = W1 + step_cache{1};
     W{2} = W2 + step_cache{2};
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

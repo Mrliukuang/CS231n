@@ -8,7 +8,3 @@ function X = get_feature(data)
         X(:, i) = extractHOGFeatures(im);
     end
 end
-
-
-
-
