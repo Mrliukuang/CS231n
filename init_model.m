@@ -1,3 +1,4 @@
+%% init model for neural network
 function model = init_model(N, D, K)
     % 1 hidden layer model.
     model.N = N;
