@@ -25,28 +25,28 @@
 
 
 % check dW1.
-function grad_W = eval_gradient_W(H, y_train, W1, W2)
-    [N, ~] = size(y_train);
-    h = 1e-5;
-    
-    ind = 20;
-    for i = 1:50
-        W_1 = W1;
-        W_2 = W1;
-        W_1(i, ind) = W_1(i, ind) + h;
-        W_2(i, ind) = W_2(i, ind) - h;
-
-        S1 = max(0, W_1*H);
-        S2 = max(0, W_2*H);
-        S1 = [ones(1, N); S1];
-        S2 = [ones(1, N); S2];
-        
-        loss1 = svm_loss(max(0, W2*S1), y_train);
-        loss2 = svm_loss(max(0, W2*S2), y_train);
-        grad_W(i) = (loss1 - loss2)/(2*h);
-        fprintf('processing ind %d; grad = %f\n', i, grad_W(i));
-    end
-end
+% function grad_W = eval_gradient_W(H, y_train, W1, W2)
+%     [N, ~] = size(y_train);
+%     h = 1e-5;
+%     
+%     ind = 20;
+%     for i = 1:50
+%         W_1 = W1;
+%         W_2 = W1;
+%         W_1(i, ind) = W_1(i, ind) + h;
+%         W_2(i, ind) = W_2(i, ind) - h;
+% 
+%         S1 = max(0, W_1*H);
+%         S2 = max(0, W_2*H);
+%         S1 = [ones(1, N); S1];
+%         S2 = [ones(1, N); S2];
+%         
+%         loss1 = svm_loss(max(0, W2*S1), y_train);
+%         loss2 = svm_loss(max(0, W2*S2), y_train);
+%         grad_W(i) = (loss1 - loss2)/(2*h);
+%         fprintf('processing ind %d; grad = %f\n', i, grad_W(i));
+%     end
+% end
 
 
 % check dW2.
@@ -69,3 +69,25 @@ end
 %         fprintf('processing ind %d; grad = %f\n', check_ind(i), grad_W(sub_1, sub_2));
 %     end
 % end
+
+% check dW2 for ConvNet
+function grad_W = eval_gradient_W(cache, y_train, check_ind, W2, b2)
+    h = 1e-7;
+    
+    grad_W = zeros(size(W2));
+    for i = 1:numel(check_ind)
+        [sub_1, sub_2] = ind2sub(size(W2), check_ind(i));
+        W_1 = W2;
+        W_2 = W2;
+        W_1(sub_1, sub_2) = W_1(sub_1, sub_2) + h;
+        W_2(sub_1, sub_2) = W_2(sub_1, sub_2) - h;
+        
+        S1 = bsxfun(@plus, W_1' * cache, b2);
+        S2 = bsxfun(@plus, W_2' * cache, b2);
+        
+        loss1 = softmax_loss(S1, y_train);
+        loss2 = softmax_loss(S2, y_train);
+        grad_W(sub_1, sub_2) = (loss1 - loss2)/(2*h);
+        fprintf('processing ind %d; grad = %f\n', check_ind(i), grad_W(sub_1, sub_2));
+    end
+end

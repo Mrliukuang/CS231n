@@ -1,25 +1,42 @@
-function a = conv_relu_pool_forward(X, W, b, conv_param, pool_param)
+function [a, cache] = conv_relu_pool_forward(X, W, b, conv_param, pool_param)
     % conv
     a = conv_forward(X, W, b, conv_param);
+    conv_cache = a;
+    
     % ReLU
-    s = max(0, a);
-    % max-pool
-    out = max_pool_forward(s);
-
-
-
-   
+    a = max(0, a);
+    relu_cache = a;
     
+    % max-pooling
+    a = max_pool_forward(a, pool_param);
+    pool_cache = a;
     
-    
+    cache{1} = conv_cache;
+    cache{2} = relu_cache;
+    cache{3} = pool_cache;
 end
 
-function out = max_pool_forward(s)
+
+function out = max_pool_forward(in, pool_param)
+    % in: conved images now wait for pooling.
+    pool_h = pool_param.height;
+    pool_w = pool_param.weight;
     
-
-
-
-
+    [in_h, in_w, C, N] = size(in);
+    out_h = in_h/pool_h;
+    out_w = in_w/pool_w;
+    
+    out = zeros(out_h, out_w, C, N);
+    for i = 1:out_w
+        for j = 1:out_h
+            % map out index to in index
+            x = i + (i-1)*(pool_w-1);
+            y = j + (j-1)*(pool_h-1);
+            
+            cube = in(y:y+pool_h-1, x:x+pool_w-1, :, :);
+            out(j, i, :, :) = max(max(cube, [], 2), [], 1);
+        end
+    end
 end
 
 
@@ -54,7 +71,7 @@ function conved_X = conv_forward(X, W, b, conv_param)
                 % get the patch(cube) of the input image
                 cube = pad_X(y : y+filter_h-1, x : x+filter_w-1, :, n);
                 % perform convolution on this patch
-                conved_X(i,j,:,n) = conv_patch(cube, W, b);
+                conved_X(j,i,:,n) = conv_patch(cube, W, b);
             end
         end
     end

@@ -9,6 +9,11 @@ model = init_convnet_model(X(:,:,:,1));
 % C = image channels, 1 for gray image, 3 for RGB image
 % N = # of examples
 
+% sample one batch
+X_batch = X(:,:,:,1:100);
+y_batch = y_tr(1:100, :);
+
+
 W1 = model.W{1};    % 32*1*5*5
 b1 = model.b{1};    % 32*1
 W2 = model.W{2};    % 6272*10
@@ -26,8 +31,47 @@ pool_param.height = 2;
 pool_param.weight = 2;
 
 % forward pass.
-X_batch = X(:,:,:,1:100);
-[a, ~] = conv_relu_pool_forward(X_batch, W1, b1, conv_param, pool_param);
+[a, cache] = conv_relu_pool_forward(X_batch, W1, b1, conv_param, pool_param);
+conv_cache = cache{1};
+relu_cache = cache{2};
+pool_cache = cache{3};
+
+% fully affine
+[scores, affine_cache] = affine_forward(a, W2, b2);
+ 
+% back prop
+[loss, dscores] = softmax_loss(scores, y_batch);
+
+% back pass affine layer
+% checked!
+[da, dW2, db2] = affine_backward(affine_cache, dscores, W2);
+
+% back pass reshape layer
+% checked!
+[h, w, C, N] = size(pool_cache);
+dpool_cache = reshape(da, [h, w, C, N]);
+
+% back pass pooling layer
+mask = ones(pool_param.height, pool_param.weight);
+drelu_cache = zeros(h*pool_param.height, w*pool_param.weight, C, N);
+
+for i=1:C
+    for j=1:N
+        mask = relu_cache(:,:,i,j)>0;
+        dpool_rep = kron(dpool_cache(:,:,i,j), ones(pool_param.height, pool_param.weight));
+        drelu_cache(:,:,i,j) = mask .* dpool_rep;
+    end
+end
+
+
+
+
+
+
+
+
+
+
 
 
 
