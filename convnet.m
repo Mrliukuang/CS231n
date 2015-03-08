@@ -19,7 +19,8 @@ b1 = model.b{1};    % 32*1
 W2 = model.W{2};    % 6272*10
 b2 = model.b{2};    % 10*1
 
-[filter_h, filter_w, ~] = size(W1);
+% filter_h == filter_w, the filter is square
+[filter_h, filter_w, ~, filter_n] = size(W1);
 
 % convolute params.
 conv_param.stride = 1;
@@ -36,33 +37,41 @@ conv_cache = cache{1};
 relu_cache = cache{2};
 pool_cache = cache{3};
 
-% fully affine
-[scores, affine_cache] = affine_forward(a, W2, b2);
- 
-% back prop
-[loss, dscores] = softmax_loss(scores, y_batch);
+cols = im_2_col(a);
+W1_r = reshape(W1, filter_n, []);
+out = bsxfun(@plus, W1_r*cols, b1);
+out = reshape(out', filter_n, )
 
-% back pass affine layer
-% checked!
-[da, dW2, db2] = affine_backward(affine_cache, dscores, W2);
 
-% back pass reshape layer
-% checked!
-[h, w, C, N] = size(pool_cache);
-dpool_cache = reshape(da, [h, w, C, N]);
-
-% back pass pooling layer
-mask = ones(pool_param.height, pool_param.weight);
-drelu_cache = zeros(h*pool_param.height, w*pool_param.weight, C, N);
-
-for i=1:C
-    for j=1:N
-        mask = relu_cache(:,:,i,j)>0;
-        dpool_rep = kron(dpool_cache(:,:,i,j), ones(pool_param.height, pool_param.weight));
-        drelu_cache(:,:,i,j) = mask .* dpool_rep;
-    end
-end
-
+% 
+% 
+% % fully affine
+% [scores, affine_cache] = affine_forward(a, W2, b2);
+%  
+% % back prop
+% [loss, dscores] = softmax_loss(scores, y_batch);
+% 
+% % back pass affine layer
+% % checked!
+% [da, dW2, db2] = affine_backward(affine_cache, dscores, W2);
+% 
+% % back pass reshape layer
+% % checked!
+% [h, w, C, N] = size(pool_cache);
+% dpool_cache = reshape(da, [h, w, C, N]);
+% 
+% % back pass pooling layer
+% mask = ones(pool_param.height, pool_param.weight);
+% drelu_cache = zeros(h*pool_param.height, w*pool_param.weight, C, N);
+% 
+% for i=1:C
+%     for j=1:N
+%         mask = relu_cache(:,:,i,j)>0;
+%         dpool_rep = kron(dpool_cache(:,:,i,j), ones(pool_param.height, pool_param.weight));
+%         drelu_cache(:,:,i,j) = mask .* dpool_rep;
+%     end
+% end
+% 
 
 
 

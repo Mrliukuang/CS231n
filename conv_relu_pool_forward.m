@@ -39,6 +39,17 @@ function out = max_pool_forward(in, pool_param)
     end
 end
 
+function conved_X = conv_forward_reshape(X, W, b, conv_param)
+    
+
+
+
+
+end
+
+
+
+
 
 function conved_X = conv_forward(X, W, b, conv_param)
      % X: all input of size H*W*C*N
