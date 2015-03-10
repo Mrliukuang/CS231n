@@ -6,7 +6,6 @@ function X_conv = conv_forward(X, W1, b1, conv_param)
     HH = (H + 2 * conv_param.pad - filter_h) / conv_param.stride + 1;
     WW = (W + 2 * conv_param.pad - filter_w) / conv_param.stride + 1;
     
-    
     cols = im_2_col(X, filter_h, filter_w, conv_param);
     W_r = reshape(W1, [], filter_n)';
     X_conv = bsxfun(@plus, W_r * cols, b1);

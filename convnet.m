@@ -1,6 +1,7 @@
-clear; clc; close all;
+% clear; 
+clc; close all;
 
-load convdata.mat;
+% load convdata.mat;
 model = init_convnet_model(X(:,:,:,1));
 
 [H, W, C, N] = size(X); % 28*28*1*60000
@@ -10,10 +11,9 @@ model = init_convnet_model(X(:,:,:,1));
 % N = # of examples
 
 % sample one batch
-X_batch = X(:,:,:,1:100);
-y_batch = y_tr(1:100, :);
 N = 100;
-
+X_batch = X(:,:,:,1:N);
+y_batch = y_tr(1:N, :);
 
 W1 = model.W{1};    % 5*5*1*32
 b1 = model.b{1};    % 32*1
@@ -37,9 +37,9 @@ pool_param.weight = 2;
 
 % forward pass.
 [a, cache] = conv_relu_pool_forward(X_batch, W1, b1, conv_param, pool_param);
-conv_cache = cache{1};
-relu_cache = cache{2};
-pool_cache = cache{3};
+X_conved = cache{1};
+X_relued = cache{2};
+X_pooled = cache{3};
 
 
 
