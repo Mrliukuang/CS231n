@@ -12,9 +12,10 @@ model = init_convnet_model(X(:,:,:,1));
 % sample one batch
 X_batch = X(:,:,:,1:100);
 y_batch = y_tr(1:100, :);
+N = 100;
 
 
-W1 = model.W{1};    % 32*1*5*5
+W1 = model.W{1};    % 5*5*1*32
 b1 = model.b{1};    % 32*1
 W2 = model.W{2};    % 6272*10
 b2 = model.b{2};    % 10*1
@@ -25,6 +26,9 @@ b2 = model.b{2};    % 10*1
 % convolute params.
 conv_param.stride = 1;
 conv_param.pad = (filter_h-1)/2;
+
+HH = (H + 2 * conv_param.pad - filter_h) / conv_param.stride + 1;
+WW = (W + 2 * conv_param.pad - filter_w) / conv_param.stride + 1;
 
 % pool params.
 pool_param.stride = 1;
@@ -37,10 +41,10 @@ conv_cache = cache{1};
 relu_cache = cache{2};
 pool_cache = cache{3};
 
-cols = im_2_col(a);
-W1_r = reshape(W1, filter_n, []);
-out = bsxfun(@plus, W1_r*cols, b1);
-out = reshape(out', filter_n, )
+cols = im_2_col(X_batch, filter_h, filter_w, conv_param);
+W1_r = reshape(W1, [], filter_n)';
+b = bsxfun(@plus, W1_r * cols, b1);
+b = col_2_im(b, HH, WW, filter_n, N);
 
 
 % 
