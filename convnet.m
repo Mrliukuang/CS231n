@@ -41,10 +41,7 @@ conv_cache = cache{1};
 relu_cache = cache{2};
 pool_cache = cache{3};
 
-cols = im_2_col(X_batch, filter_h, filter_w, conv_param);
-W1_r = reshape(W1, [], filter_n)';
-b = bsxfun(@plus, W1_r * cols, b1);
-b = col_2_im(b, HH, WW, filter_n, N);
+
 
 
 % 
