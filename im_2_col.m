@@ -11,7 +11,6 @@ function cols = im_2_col(X, filter_h, filter_w, conv_param)
     X_padded = padarray(X, [p, p]);
 
     cols = zeros(C*filter_h*filter_w, N*HH*WW);
-    
     for w = 1:WW
         for h = 1:HH
             x = 1 + (w-1) * stride;

@@ -1,6 +1,7 @@
 function X_pooled = max_pool_forward(X_conved, pool_param)
     % X_conved: conved images now wait for pooling.
-    % pool_param
+    % we adopt distinct pooling strategy.
+    % the 'pool_param.stride' is not used.
     pool_h = pool_param.height;
     pool_w = pool_param.weight;
     

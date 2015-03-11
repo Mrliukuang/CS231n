@@ -27,8 +27,8 @@ b2 = model.b{2};    % 10*1
 conv_param.stride = 1;
 conv_param.pad = (filter_h-1)/2;
 
-HH = (H + 2 * conv_param.pad - filter_h) / conv_param.stride + 1;
-WW = (W + 2 * conv_param.pad - filter_w) / conv_param.stride + 1;
+% HH = (H + 2 * conv_param.pad - filter_h) / conv_param.stride + 1;
+% WW = (W + 2 * conv_param.pad - filter_w) / conv_param.stride + 1;
 
 % pool params.
 pool_param.stride = 1;
@@ -37,42 +37,42 @@ pool_param.weight = 2;
 
 % forward pass.
 [a, cache] = conv_relu_pool_forward(X_batch, W1, b1, conv_param, pool_param);
-X_conved = cache{1};
-X_relued = cache{2};
-X_pooled = cache{3};
+X_conv = cache{1};
+X_relu = cache{2};
+X_pool = cache{3};
+
+% fully affine
+[scores, X_affine] = affine_forward(a, W2, b2);
+ 
+% back prop
+[loss, dscores] = softmax_loss(scores, y_batch);
+
+% back pass affine layer
+% checked!
+[dX_affine, dW2, db2] = affine_backward(X_affine, dscores, W2);
+
+% back pass reshape layer
+% checked!
+dX_pool = reshape(dX_affine, size(X_pool));
+
+% back pass pooling layer
+% checked!
+% Note.  when gradient_check dX_relu, need to choose those !=0 values as check_ind.
+dX_relu = max_pool_backward(X_relu, X_pool, dX_pool, pool_param);
 
 
 
-
-% 
-% 
-% % fully affine
-% [scores, affine_cache] = affine_forward(a, W2, b2);
-%  
-% % back prop
-% [loss, dscores] = softmax_loss(scores, y_batch);
-% 
-% % back pass affine layer
-% % checked!
-% [da, dW2, db2] = affine_backward(affine_cache, dscores, W2);
-% 
-% % back pass reshape layer
-% % checked!
-% [h, w, C, N] = size(pool_cache);
-% dpool_cache = reshape(da, [h, w, C, N]);
-% 
-% % back pass pooling layer
 % mask = ones(pool_param.height, pool_param.weight);
-% drelu_cache = zeros(h*pool_param.height, w*pool_param.weight, C, N);
+% dX_pool = zeros(HH*pool_param.height, WW*pool_param.weight, filter_n, N);
 % 
-% for i=1:C
+% for i=1:filter_n
 %     for j=1:N
 %         mask = relu_cache(:,:,i,j)>0;
-%         dpool_rep = kron(dpool_cache(:,:,i,j), ones(pool_param.height, pool_param.weight));
+%         dpool_rep = kron(dX_pooled(:,:,i,j), ones(pool_param.height, pool_param.weight));
 %         drelu_cache(:,:,i,j) = mask .* dpool_rep;
 %     end
 % end
-% 
+
 
 
 

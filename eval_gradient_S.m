@@ -17,6 +17,26 @@
 %     end
 % end
 
+% check dX_affine
+% function grad_S = eval_gradient_S(X_affined, y_train, check_ind, W2, b2)
+%     h = 1e-5;
+%     X_affined = reshape(X_affined, [14,14,32,100]);
+%     grad_S = zeros(size(X_affined));
+%     for i = 1:numel(check_ind)
+%         [sub_1, sub_2] = ind2sub(size(X_affined), check_ind(i));
+%         S1 = X_affined;
+%         S2 = X_affined;        
+%         S1(sub_1, sub_2) = S1(sub_1, sub_2) + h;
+%         S2(sub_1, sub_2) = S2(sub_1, sub_2) - h;
+%         
+%         loss1 = softmax_loss(affine_forward(S1, W2, b2), y_train);
+%         loss2 = softmax_loss(affine_forward(S2, W2, b2), y_train);
+%         grad_S(sub_1, sub_2) = (loss1 - loss2)/(2*h);
+%         fprintf('processing ind %d; grad = %f\n', check_ind(i), grad_S(sub_1, sub_2));
+%     end
+% end
+
+
 %% check dpool_cache.
 % function grad_S = eval_gradient_S(pool_cache, y_train, check_ind, W2, b2)
 %     h = 1e-5;
@@ -36,47 +56,25 @@
 %     end
 % end
 
-%% check drelu_cache
-function grad_relu = eval_gradient_S(relu_cache, y_train, check_ind, pool_param, W2, b2)
-    h = 1e-5;
+% check dX_relu
+function grad_relu = eval_gradient_S(X_relu, y_batch, check_ind, pool_param, W2, b2)
+    h = 1e-8;
     
-    grad_relu = zeros(size(relu_cache));
-    for ii = 1:numel(check_ind)
-        [sub_1, sub_2] = ind2sub(size(relu_cache), check_ind(ii));
-        S1 = relu_cache;
-        S2 = relu_cache;        
+    grad_relu = zeros(size(X_relu));
+    for i = 1:numel(check_ind)
+        [sub_1, sub_2] = ind2sub(size(X_relu), check_ind(i));
+        S1 = X_relu;
+        S2 = X_relu;        
         S1(sub_1, sub_2) = S1(sub_1, sub_2) + h;
         S2(sub_1, sub_2) = S2(sub_1, sub_2) - h;
         
         S1 = max_pool_forward(S1, pool_param);
         S2 = max_pool_forward(S2, pool_param);
 
-        loss1 = softmax_loss(affine_forward(S1, W2, b2), y_train);
-        loss2 = softmax_loss(affine_forward(S2, W2, b2), y_train);
+        loss1 = softmax_loss(affine_forward(S1, W2, b2), y_batch);
+        loss2 = softmax_loss(affine_forward(S2, W2, b2), y_batch);
         grad_relu(sub_1, sub_2) = (loss1 - loss2)/(2*h);
-        fprintf('processing ind %d; grad = %f\n', check_ind(ii), grad_relu(sub_1, sub_2));
-    end
-    
-    function out = max_pool_forward(in, pool_param)
-        % in: conved images now wait for pooling.
-        pool_h = pool_param.height;
-        pool_w = pool_param.weight;
-        
-        [in_h, in_w, C, N] = size(in);
-        out_h = in_h/pool_h;
-        out_w = in_w/pool_w;
-        
-        out = zeros(out_h, out_w, C, N);
-        for i = 1:out_w
-            for j = 1:out_h
-                % map out index to in index
-                x = i + (i-1)*(pool_w-1);
-                y = j + (j-1)*(pool_h-1);
-                
-                cube = in(y:y+pool_h-1, x:x+pool_w-1, :, :);
-                out(j, i, :, :) = max(max(cube, [], 2), [], 1);
-            end
-        end
+        fprintf('processing ind %d; grad = %f\n', check_ind(i), grad_relu(sub_1, sub_2));
     end
 end
 

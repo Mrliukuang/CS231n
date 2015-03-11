@@ -1,5 +1,5 @@
 function [scores, cache] = affine_forward(in, W, b)
-    % in of shape [h, w, C, N]
+    % in of shape [HH, WW, filter_n, N]
     [~, ~, ~, N] = size(in);
     
     % reshape each input to one column
