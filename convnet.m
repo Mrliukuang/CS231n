@@ -60,6 +60,9 @@ dX_pool = reshape(dX_affine, size(X_pool));
 % Note.  when gradient_check dX_relu, need to choose those !=0 values as check_ind.
 dX_relu = max_pool_backward(X_relu, X_pool, dX_pool, pool_param);
 
+% back pass ReLU layer
+dX_conv = relu_backward(dX_relu, X_conv);
+
 
 
 % mask = ones(pool_param.height, pool_param.weight);
