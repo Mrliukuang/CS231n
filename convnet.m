@@ -37,9 +37,10 @@ pool_param.weight = 2;
 
 % forward pass.
 [a, cache] = conv_relu_pool_forward(X_batch, W1, b1, conv_param, pool_param);
-X_conv = cache{1};
-X_relu = cache{2};
-X_pool = cache{3};
+X_cols = cache{1};
+X_conv = cache{2};
+X_relu = cache{3};
+X_pool = cache{4};
 
 % fully affine
 [scores, X_affine] = affine_forward(a, W2, b2);
@@ -63,21 +64,8 @@ dX_relu = max_pool_backward(X_relu, X_pool, dX_pool, pool_param);
 % back pass ReLU layer
 dX_conv = relu_backward(dX_relu, X_conv);
 
-
-
-% mask = ones(pool_param.height, pool_param.weight);
-% dX_pool = zeros(HH*pool_param.height, WW*pool_param.weight, filter_n, N);
-% 
-% for i=1:filter_n
-%     for j=1:N
-%         mask = relu_cache(:,:,i,j)>0;
-%         dpool_rep = kron(dX_pooled(:,:,i,j), ones(pool_param.height, pool_param.weight));
-%         drelu_cache(:,:,i,j) = mask .* dpool_rep;
-%     end
-% end
-
-
-
+% back pass Conv layer
+[dW1, db1] = conv_backward(X_cols, dX_conv, W1);
 
 
 

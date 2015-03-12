@@ -1,4 +1,4 @@
-function X_conv = conv_forward(X, W1, b1, conv_param)
+function [X_conv, cols] = conv_forward(X, W1, b1, conv_param)
     % TODO. try 'convn' in matlab
     [H, W, ~, N] = size(X);
     [filter_h, filter_w, ~, filter_n] = size(W1);

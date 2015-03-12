@@ -18,14 +18,17 @@ function dX_relu = max_pool_backward(X_relu, X_pool, dX_pool, pool_param)
             
             % TODO: for several same max value, how to backprop the gradient?
             % #1: equally distribute the gradient
-            % #2: randomly choose one
+            % #2: randomly choose one, like the first one (seems this is prefered!)
             % which is reasonable?
-
+            % It seems which way doesn't matter, cause the ReLU layer
+            % before will set all zero-value gradients to zero! So who cares!
+            
+            
             %scale = sum(reshape(mask, [], 1, C, N), 1);
-            scale = 1;
-
-            t = bsxfun(@times, mask, dX_pool(j, i, :, :));
-            dX_relu(y:y+pool_h-1, x:x+pool_w-1, :, :) = bsxfun(@rdivide, t, scale);
+            %t = bsxfun(@times, mask, dX_pool(j, i, :, :));
+            %dX_relu(y:y+pool_h-1, x:x+pool_w-1, :, :) = bsxfun(@rdivide, t, scale);
+           
+            dX_relu(y:y+pool_h-1, x:x+pool_w-1, :, :) = bsxfun(@times, mask, dX_pool(j, i, :, :));
         end
     end
 
