@@ -2,7 +2,14 @@
 clc; close all;
 
 % load convdata.mat;
+% load CIFAR10_3D_zero_meaned.mat;
 model = init_convnet_model(X(:,:,:,1));
+
+% load parameters
+W1 = model.W{1};    % 5*5*1*32
+b1 = model.b{1};    % 32*1
+W2 = model.W{2};    % 6272*10
+b2 = model.b{2};    % 10*1
 
 % H = height
 % W = weight
@@ -26,18 +33,12 @@ pool_param.stride = 1;
 pool_param.height = 2;
 pool_param.weight = 2;
 
-% load parameters
-W1 = model.W{1};    % 5*5*1*32
-b1 = model.b{1};    % 32*1
-W2 = model.W{2};    % 6272*10
-b2 = model.b{2};    % 10*1
-
 % load validation data
 val_ind = randi(N, 500, 1);
 X_val = X(:, :, :, val_ind);
 y_val = y_tr(val_ind);
 
-batch_size = 256;
+batch_size = 300;
 best_acc = 0;
 
 best.loss = Inf;
@@ -47,7 +48,7 @@ best.W2 = W2;
 best.b2 = b2;
 
 num_iters = 100;
-step_size = 1e-1;
+step_size = 1e-4;
 
 step_cache{1} = zeros(size(W1));
 step_cache{2} = zeros(size(b1));
@@ -60,11 +61,15 @@ val_acc_history = zeros(num_iters, 1);
 % X_batch = X_val;
 % y_batch = y_val;
 
-for i = 1:50
+batch_mask = randi(N, batch_size, 1);
+X_batch = X(:, :, :, batch_mask);
+y_batch = y_tr(batch_mask);
+
+for i = 1:5000
     %% sample one batch examples.
-    batch_mask = randi(N, batch_size, 1);
-    X_batch = X(:, :, :, batch_mask);
-    y_batch = y_tr(batch_mask);
+%     batch_mask = randi(N, batch_size, 1);
+%     X_batch = X(:, :, :, batch_mask);
+%     y_batch = y_tr(batch_mask);
     
     % forward pass.
     [a, cache] = conv_relu_pool_forward(X_batch, W1, b1, conv_param, pool_param);
@@ -72,6 +77,7 @@ for i = 1:50
     X_conv = cache{2};
     X_relu = cache{3};
     X_pool = cache{4};
+    max_ind = cache{5};
     
     % fully affine
     [scores, X_affine] = affine_forward(a, W2, b2);
@@ -87,15 +93,15 @@ for i = 1:50
     if loss < best.loss
         fprintf('bingo!\n')
         best.loss = loss;
+%         best.W1 = W1;
+%         best.b1 = b1;
+%         best.W2 = W2;
+%         best.b2 = b2;
     end
     
     if acc > best_acc
         fprintf(' Yes!\n')
         best_acc = acc;
-        best.W1 = W1;
-        best.b1 = b1;
-        best.W2 = W2;
-        best.b2 = b2;
     end
     
     
@@ -110,7 +116,7 @@ for i = 1:50
     % back pass pooling layer
     % checked!
     % Note.  when gradient_check dX_relu, need to choose those !=0 values as check_ind.
-    dX_relu = max_pool_backward(X_relu, X_pool, dX_pool, pool_param);
+    dX_relu = max_pool_backward(X_pool, dX_pool, max_ind, pool_param);
     
     % back pass ReLU layer
     dX_conv = relu_backward(dX_relu, X_conv);
