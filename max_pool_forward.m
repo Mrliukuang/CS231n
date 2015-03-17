@@ -2,8 +2,10 @@ function [X_pool, ind] = max_pool_forward(X_relu, pool_param)
     % X_conved: conved images now wait for pooling.
     % we adopt distinct pooling strategy.
     % the 'pool_param.stride' is not used.
-
-   
+    
+    % function works like sub2ind, but faster! (maybe...)
+    get_ind = @(siz, x1, x2, x3, x4) x1 + (x2-1)*siz(1) + (x3-1)*siz(1)*siz(2) + (x4-1)*siz(1)*siz(2)*siz(3);
+    
     pool_h = pool_param.height;
     pool_w = pool_param.weight;
 
@@ -39,7 +41,7 @@ function [X_pool, ind] = max_pool_forward(X_relu, pool_param)
     tmp = reshape(repmat(1:N, C, 1), 1, 1, C, N);
     n_mask = bsxfun(@times, n_mask, tmp);
     
-    row_ind = i1(sub2ind(size(i1), col_ind, w_mask, c_mask, n_mask));
+    row_ind = i1(get_ind(size(i1), col_ind, w_mask, c_mask, n_mask));
     
     X_pool = reshape(X_pool, WW, HH, C, N);
     row_ind = reshape(row_ind, WW, HH, C, N);
@@ -64,7 +66,7 @@ function [X_pool, ind] = max_pool_forward(X_relu, pool_param)
     tmp = reshape(repmat(1:N, C, 1), 1, 1, C, N);
     n_mask = bsxfun(@times, n_mask, tmp);
     
-    ind = sub2ind(size(X_relu), row_ind, col_ind, c_mask, n_mask);
+    ind = get_ind(size(X_relu), row_ind, col_ind, c_mask, n_mask);
     
     
 %     

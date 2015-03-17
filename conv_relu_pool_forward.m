@@ -8,7 +8,8 @@ function [a, cache] = conv_relu_pool_forward(X, W, b, conv_param, pool_param)
     X_relued = a;
     
     % max-pooling
-    [a, max_ind] = max_pool_forward(a, pool_param);
+%     [a, max_ind] = max_pool_forward(a, pool_param);
+    [a, max_ind] = MaxPooling(a, [pool_param.height, pool_param.weight]);
     X_pooled = a;
      
     cache{1} = cols;

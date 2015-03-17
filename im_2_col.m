@@ -1,14 +1,13 @@
 function cols = im_2_col(X, filter_h, filter_w, conv_param)
     % This file is kind like matlab build-in 'im2col.m', but with strides.
     [H, W, C, N] = size(X);
-    padding = conv_param.pad;
+    pad = conv_param.pad;
     stride = conv_param.stride;
 
-    HH = (H + 2*padding - filter_h) / stride + 1;
-    WW = (W + 2*padding - filter_w) / stride + 1;
+    HH = (H + 2*pad - filter_h) / stride + 1;
+    WW = (W + 2*pad - filter_w) / stride + 1;
     
-    p = padding;
-    X_padded = padarray(X, [p, p]);
+    X_padded = padarray(X, [pad, pad]);
 
     cols = zeros(C*filter_h*filter_w, N*HH*WW);
     for w = 1:WW

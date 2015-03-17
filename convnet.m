@@ -3,6 +3,7 @@ clc; close all;
 
 % load convdata.mat;
 % load CIFAR10_3D_zero_meaned.mat;
+X = X_tr;
 model = init_convnet_model(X(:,:,:,1));
 
 % load parameters
@@ -34,21 +35,23 @@ pool_param.height = 2;
 pool_param.weight = 2;
 
 % load validation data
-val_ind = randi(N, 500, 1);
+val_ind = randi(N, 1000, 1);
 X_val = X(:, :, :, val_ind);
 y_val = y_tr(val_ind);
 
-batch_size = 300;
 best_acc = 0;
-
 best.loss = Inf;
 best.W1 = W1;
 best.b1 = b1;
 best.W2 = W2;
 best.b2 = b2;
 
-num_iters = 100;
-step_size = 1e-4;
+epoch_num = 20;
+batch_size = 200;
+its_per_epoch = N / batch_size;
+num_iters = epoch_num * its_per_epoch;
+step_size = 1e-4;   % learning rate
+step_size_decay = 0.95;
 
 step_cache{1} = zeros(size(W1));
 step_cache{2} = zeros(size(b1));
@@ -56,20 +59,21 @@ step_cache{3} = zeros(size(W2));
 step_cache{4} = zeros(size(b2));
 
 val_acc_history = zeros(num_iters, 1);
+loss_history = zeros(num_iters, 1);
 
 
 % X_batch = X_val;
 % y_batch = y_val;
 
-batch_mask = randi(N, batch_size, 1);
-X_batch = X(:, :, :, batch_mask);
-y_batch = y_tr(batch_mask);
+% batch_mask = randi(N, batch_size, 1);
+% X_batch = X(:, :, :, batch_mask);
+% y_batch = y_tr(batch_mask);
 
-for i = 1:5000
+for i = 1:num_iters
     %% sample one batch examples.
-%     batch_mask = randi(N, batch_size, 1);
-%     X_batch = X(:, :, :, batch_mask);
-%     y_batch = y_tr(batch_mask);
+    batch_mask = randi(N, batch_size, 1);
+    X_batch = X(:, :, :, batch_mask);
+    y_batch = y_tr(batch_mask);
     
     % forward pass.
     [a, cache] = conv_relu_pool_forward(X_batch, W1, b1, conv_param, pool_param);
@@ -84,10 +88,12 @@ for i = 1:5000
         
     % back prop
     [loss, dscores] = softmax_loss(scores, y_batch);
+    loss_history(i) = loss;
     % test parameters on validation data
     %     acc = predict(X_val, y_val, W1, b1, W2, b2, conv_param, pool_param);
     
-    acc = predict(scores, y_batch);
+%     acc = predict(scores, y_batch);
+    acc = predict(X_val, y_val, W1, b1, W2, b2, conv_param, pool_param);
     val_acc_history(i) = acc;
     fprintf('#%d: loss: %f | accuracy: %f | bestloss: %f | best_acc: %f\n', i, loss, acc, best.loss, best_acc)
     if loss < best.loss
@@ -133,6 +139,10 @@ for i = 1:5000
     b1 = b1 + step_cache{2};
     W2 = W2 + step_cache{3};
     b2 = b2 + step_cache{4};
+    
+    if mod(i, its_per_epoch) == 0
+        step_size = step_size * step_size_decay;
+    end
 end
 
 
