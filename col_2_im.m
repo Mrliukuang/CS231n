@@ -1,5 +1,24 @@
-function X = col_2_im(cols, HH, WW, filter_n, N)
-    % the reshaped X is of size [HH, WW, filter_n, N]
-    t = reshape(cols', N, []);
-    X = reshape(t', [HH, WW, filter_n, N]);
+function m = col_2_im(cols, filter_h, filter_w, conv_param)
+    [H, W, C, N] = size(X);
+    pad = conv_param.pad;
+    stride = conv_param.stride;
+
+    HH = (H + 2*pad - filter_h) / stride + 1;
+    WW = (W + 2*pad - filter_w) / stride + 1;
+    
+    X_padded = padarray(X, [pad, pad]);
+
+    cols = zeros(C*filter_h*filter_w, N*HH*WW);
+    for w = 1:WW
+        for h = 1:HH
+            x = 1 + (w-1) * stride;
+            y = 1 + (h-1) * stride;
+            
+            cube = X_padded(y : y+filter_h-1, x : x+filter_w-1, :, :);
+            cube = reshape(cube, [], N);
+            ind = sub2ind([HH, WW], h, w);
+            cols(:, (ind-1)*N+1 : ind*N) = cube;
+        end       
+    end  
+
 end

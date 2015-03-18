@@ -10,8 +10,14 @@ function [X_conv, cols] = conv_forward(X, W1, b1, conv_param)
     cols = im_2_col(X, filter_h, filter_w, conv_param);
     W_r = reshape(W1, [], filter_n)';
     X_conv = bsxfun(@plus, W_r * cols, b1);
-    X_conv = col_2_im(X_conv, HH, WW, filter_n, N);
+    
+    % the reshaped X_conv is of size [HH, WW, filter_n, N]
+    t = reshape(X_conv', N, []);
+    X_conv = reshape(t', [HH, WW, filter_n, N]);
+ 
 end
+
+
 
 
 

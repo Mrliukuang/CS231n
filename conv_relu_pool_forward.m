@@ -17,8 +17,7 @@ function [a, cache] = conv_relu_pool_forward(X, W, b, conv_param, pool_param)
     cache{3} = X_relued;
     cache{4} = X_pooled;
     cache{5} = max_ind;
-    
-    
+     
 end
 
 
