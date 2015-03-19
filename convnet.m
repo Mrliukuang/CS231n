@@ -86,7 +86,7 @@ for i = 1:5000
     % [a, cache] = conv_relu_pool_forward(X_batch, W1, b1, conv_param, pool_param);
 %     [a, cache1] = conv_relu_forward(X_batch, W1, b1, conv_param1);
 %     [b, cache2] = conv_relu_pool_forward(a, W2, b2, conv_param2, pool_param);
-    [X_conv1, X_cols] = conv_forward(X_batch, W1, b1, conv_param);
+    [X_conv1, X_cols] = conv_forward(X_batch, W1, b1, conv_param1);
     X_relu1 = max(0, X_conv1);
     
     [X_conv2, X_relu1_cols] = conv_forward(X_relu1, W2, b2, conv_param2);

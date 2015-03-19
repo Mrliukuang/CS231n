@@ -1,24 +1,25 @@
-function m = col_2_im(cols, filter_h, filter_w, conv_param)
+function m = col_2_im(X, cols, filter_h, filter_w, conv_param)
     [H, W, C, N] = size(X);
     pad = conv_param.pad;
     stride = conv_param.stride;
-
+    
     HH = (H + 2*pad - filter_h) / stride + 1;
     WW = (W + 2*pad - filter_w) / stride + 1;
     
-    X_padded = padarray(X, [pad, pad]);
-
-    cols = zeros(C*filter_h*filter_w, N*HH*WW);
-    for w = 1:WW
-        for h = 1:HH
-            x = 1 + (w-1) * stride;
-            y = 1 + (h-1) * stride;
-            
-            cube = X_padded(y : y+filter_h-1, x : x+filter_w-1, :, :);
-            cube = reshape(cube, [], N);
-            ind = sub2ind([HH, WW], h, w);
-            cols(:, (ind-1)*N+1 : ind*N) = cube;
-        end       
-    end  
+    m = zeros(size(X));
+    i = 1;
+    j = 1;
+    for n = 1 : HH*WW
+        col = cols(:, (n-1)*N+1 : n*N);
+        sq = reshape(col, [filter_h, filter_w, C, N]);
+        m(i:i+filter_h-1, j:j+filter_w-1, :, :) = m(i:i+filter_h-1, j:j+filter_w-1, :, :) + sq;
+        
+        i = i + stride;
+        if i >= H
+            i=1;
+            j=j+stride;
+        end
+    end
+    
 
 end
