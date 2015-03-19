@@ -19,7 +19,8 @@ function cols = im_2_col(X, filter_h, filter_w, conv_param)
             
             cube = X_padded(y : y+filter_h-1, x : x+filter_w-1, :, :);
             cube = reshape(cube, [], N);
-            ind = sub2ind([HH, WW], h, w);
+            % ind = sub2ind([HH, WW], h, w);
+            ind = h + (w-1)*HH;
             cols(:, (ind-1)*N+1 : ind*N) = cube;
         end       
     end  

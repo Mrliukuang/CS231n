@@ -15,7 +15,7 @@ function m = col_2_im(X, cols, filter_h, filter_w, conv_param)
         m(i:i+filter_h-1, j:j+filter_w-1, :, :) = m(i:i+filter_h-1, j:j+filter_w-1, :, :) + sq;
         
         i = i + stride;
-        if i >= H
+        if i > H-filter_h+1
             i=1;
             j=j+stride;
         end
