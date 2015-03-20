@@ -41,9 +41,9 @@ pool_param.height = 2;
 pool_param.weight = 2;
 
 % load validation data
-val_ind = randi(N, 500, 1);
-X_val = X(:, :, :, val_ind);
-y_val = y_tr(val_ind);
+% val_ind = randi(N, 500, 1);
+% X_val = X(:, :, :, val_ind);
+% y_val = y_tr(val_ind);
 
 best_acc = 0;
 best.loss = Inf;
@@ -53,10 +53,10 @@ best.loss = Inf;
 % best.b2 = b2;
 
 epoch_num = 20;
-batch_size = 200;
-its_per_epoch = N / batch_size;
+batch_size = 128;
+its_per_epoch = uint8(N / batch_size);
 num_iters = epoch_num * its_per_epoch;
-step_size = 1e-3;   % learning rate
+step_size = 0.01;   % learning rate
 step_size_decay = 0.95;
 
 step_cache{1} = zeros(size(W1));
@@ -64,7 +64,7 @@ step_cache{2} = zeros(size(b1));
 step_cache{3} = zeros(size(W2));
 step_cache{4} = zeros(size(b2));
 
-val_acc_history = zeros(num_iters, 1);
+val_acc_history = zeros(5000, 1);
 loss_history = zeros(num_iters, 1);
 
 
@@ -79,7 +79,7 @@ for i = 1:5000
     %% sample one batch examples.
     batch_mask = randi(N, batch_size, 1);
     X_batch = X(:, :, :, batch_mask);
-    y_batch = y_tr(batch_mask);
+    y_batch = y(batch_mask);
     
     
     % forward pass.
@@ -110,10 +110,12 @@ for i = 1:5000
     if loss < best.loss
         fprintf('bingo!\n')
         best.loss = loss;
-        %         best.W1 = W1;
-        %         best.b1 = b1;
-        %         best.W2 = W2;
-        %         best.b2 = b2;
+        best.W1 = W1;
+        best.b1 = b1;
+        best.W2 = W2;
+        best.b2 = b2;
+        best.W3 = W3;
+        best.b3 = b3;
     end
     
     if acc > best_acc
@@ -132,32 +134,29 @@ for i = 1:5000
     dX_conv2 = relu_backward(dX_relu2, X_conv2);
     
     % back pass conv layer
+    [dX_relu1, dW2, db2] = conv_backward(X_relu1, X_relu1_cols, dX_conv2, W2, conv_param2);
     
+    % back pass relu layer
+    dX_conv1 = relu_backward(dX_relu1, X_conv1);
     
+    % back pass conv layer
+    [~, dW1, db1] = conv_backward(X_batch, X_cols, dX_conv1, W1, conv_param1);
     
 %     % backward
 %     [db, dW2, db2] = pool_relu_conv_backward(dX_affine, cache2, W2, pool_param);
 %     [dW1, db1] = relu_conv_backward(db, cache1, W1);
 %     
-%     % update params
-%     [W1, b1] = update_param(W1, b1, dW1, db1, step_size);
-%     [W2, b2] = update_param(W2, b2, dW2, db2, step_size);
+    % update params
+    [W1, b1] = update_param(W1, b1, dW1, db1, step_size);
+    [W2, b2] = update_param(W2, b2, dW2, db2, step_size);
+    [W3, b3] = update_param(W3, b3, dW3, db3, step_size);
     
-    if mod(i, its_per_epoch) == 0
-        step_size = step_size * step_size_decay;
-    end
+%     if mod(i, its_per_epoch) == 0
+%         step_size = step_size * step_size_decay;
+%     end
     
     
 end
-
-
-
-
-
-
-
-
-
 
 
 
