@@ -56,8 +56,29 @@
 
 
 % check dX
-function grad_S = eval_gradient_S(X, y, check_ind, W1, b1, W2, b2, conv_param)
-    h = 1e-3;
+% function grad_S = eval_gradient_S(X, y, check_ind, W1, b1, W2, b2, conv_param)
+%     h = 1e-1;
+%     
+%     grad_S = zeros(size(X));
+%     for i = 1:numel(check_ind)
+%         [sub_1, sub_2] = ind2sub(size(X), check_ind(i));
+%         X1 = X;
+%         X2 = X;        
+%         X1(sub_1, sub_2) = X1(sub_1, sub_2) + h;
+%         X2(sub_1, sub_2) = X2(sub_1, sub_2) - h;
+%         
+%         X_conv1 = conv_forward(X1, W1, b1, conv_param);
+%         X_conv2 = conv_forward(X2, W1, b1, conv_param);
+%         
+%         loss1 = softmax_loss(affine_forward(X_conv1, W2, b2), y);
+%         loss2 = softmax_loss(affine_forward(X_conv2, W2, b2), y);
+%         grad_S(sub_1, sub_2) = (loss1 - loss2)/(2*h);
+%         fprintf('processing ind %d: grad = %f\n', check_ind(i), grad_S(sub_1, sub_2));
+%     end
+% end
+
+function grad_S = eval_gradient_S(X, y, check_ind, W2, b2, pool_param)
+    h = 1e-5;
     
     grad_S = zeros(size(X));
     for i = 1:numel(check_ind)
@@ -67,11 +88,11 @@ function grad_S = eval_gradient_S(X, y, check_ind, W1, b1, W2, b2, conv_param)
         X1(sub_1, sub_2) = X1(sub_1, sub_2) + h;
         X2(sub_1, sub_2) = X2(sub_1, sub_2) - h;
         
-        X_conv1 = conv_forward(X1, W1, b1, conv_param);
-        X_conv2 = conv_forward(X2, W1, b1, conv_param);
+        [X_pool1, ~] = MaxPooling(X1, [pool_param.height, pool_param.weight]);
+        [X_pool2, ~] = MaxPooling(X2, [pool_param.height, pool_param.weight]);
         
-        loss1 = softmax_loss(affine_forward(X_conv1, W2, b2), y);
-        loss2 = softmax_loss(affine_forward(X_conv2, W2, b2), y);
+        loss1 = softmax_loss(affine_forward(X_pool1, W2, b2), y);
+        loss2 = softmax_loss(affine_forward(X_pool2, W2, b2), y);
         grad_S(sub_1, sub_2) = (loss1 - loss2)/(2*h);
         fprintf('processing ind %d: grad = %f\n', check_ind(i), grad_S(sub_1, sub_2));
     end

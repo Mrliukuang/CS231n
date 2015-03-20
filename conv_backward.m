@@ -1,7 +1,6 @@
 function [dX_out, dW, db] = conv_backward(X, X_cols, dX_conv, W, conv_param)
     [filter_h, filter_w, C, filter_n] = size(W);
     % 1. reshape dX_conv to dX_cols
-%     dX_cols = permute(dX_conv, [3, 1, 2, 4]);
     dX_cols = permute(dX_conv, [3, 4, 1, 2]);
     dX_cols = reshape(dX_cols, filter_n, []);
 
