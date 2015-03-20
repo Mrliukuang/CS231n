@@ -71,23 +71,54 @@
 % end
 
 % check dW2 for ConvNet
-function grad_W = eval_gradient_W(cache, y_train, check_ind, W2, b2)
+% function grad_W = eval_gradient_W(X_affine, y_train, check_ind, W2, b2)
+%     h = 1e-7;
+%     X_affine = reshape(X_affine, [32,32,32,10]);
+%     grad_W = zeros(size(W2));
+%     for i = 1:numel(check_ind)
+%         [sub_1, sub_2] = ind2sub(size(W2), check_ind(i));
+%         W_1 = W2;
+%         W_2 = W2;
+%         W_1(sub_1, sub_2) = W_1(sub_1, sub_2) + h;
+%         W_2(sub_1, sub_2) = W_2(sub_1, sub_2) - h;
+%         
+%         loss1 = softmax_loss(affine_forward(X_affine, W_1, b2), y_train);
+%         loss2 = softmax_loss(affine_forward(X_affine, W_2, b2), y_train);
+%         grad_W(sub_1, sub_2) = (loss1 - loss2)/(2*h);
+%         fprintf('processing ind %d; grad = %f\n', check_ind(i), grad_W(sub_1, sub_2));
+%     end
+% end
+
+% check dW1
+function grad = eval_gradient_W(X, y, check_ind, W1, b1, W2, b2, conv_param)
     h = 1e-7;
     
-    grad_W = zeros(size(W2));
+    grad = zeros(size(W1));
     for i = 1:numel(check_ind)
-        [sub_1, sub_2] = ind2sub(size(W2), check_ind(i));
-        W_1 = W2;
-        W_2 = W2;
+        [sub_1, sub_2] = ind2sub(size(W1), check_ind(i));
+        W_1 = W1;
+        W_2 = W1;        
         W_1(sub_1, sub_2) = W_1(sub_1, sub_2) + h;
         W_2(sub_1, sub_2) = W_2(sub_1, sub_2) - h;
         
-        S1 = bsxfun(@plus, W_1' * cache, b2);
-        S2 = bsxfun(@plus, W_2' * cache, b2);
+        X_conv1 = conv_forward(X, W_1, b1, conv_param);
+        X_conv2 = conv_forward(X, W_2, b1, conv_param);
         
-        loss1 = softmax_loss(S1, y_train);
-        loss2 = softmax_loss(S2, y_train);
-        grad_W(sub_1, sub_2) = (loss1 - loss2)/(2*h);
-        fprintf('processing ind %d; grad = %f\n', check_ind(i), grad_W(sub_1, sub_2));
+        loss1 = softmax_loss(affine_forward(X_conv1, W2, b2), y);
+        loss2 = softmax_loss(affine_forward(X_conv2, W2, b2), y);
+        grad(sub_1, sub_2) = (loss1 - loss2)/(2*h);
+        fprintf('processing ind %d: grad = %f\n', check_ind(i), grad(sub_1, sub_2));
     end
 end
+
+
+
+
+
+
+
+
+
+
+
+
