@@ -6,16 +6,17 @@ function dX_relu = max_pool_backward(X_pool, dX_pool, max_ind, pool_param)
     H = HH * pool_h;
     W = WW * pool_w;
 
-    % expand each element of dX_pool into [pool_h, pool_w] submatrix.
-    % in Matlab 2015b, can use 'repelem'
+    % replicate each element of dX_pool into a [pool_h, pool_w] submatrix.
+    % in Matlab 2015a, can use 'repelem'
     % now can use tricks like 'kron'
+    % TODO. sparse matrices can use more trick from 'kron'...
+    % more details see 'kron.m' file.
     A = reshape(dX_pool, [1, HH, 1, WW, C, N]);
     B = ones(pool_h, 1, pool_w, 1);
     K = reshape(bsxfun(@times, A, B), [H, W, C, N]);
     
     dX_relu = zeros(H, W, C, N);
     dX_relu(max_ind) = K(max_ind);
-    
     
 %     dX_relu = zeros(size(X_relu));
 %     

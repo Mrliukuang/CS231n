@@ -1,11 +1,13 @@
 % clear;
 clc; close all;
-
+addpath('.\util')
 % load convdata.mat;
+% load XY128
 % load CIFAR10_3D_zero_meaned.mat;
+
 % X = X_tr;
 model = init_convnet_model(X(:,:,:,1));
-
+X = double(X);
 % load parameters
 W1 = model.W{1};
 b1 = model.b{1};
@@ -65,7 +67,7 @@ step_cache{3} = zeros(size(W2));
 step_cache{4} = zeros(size(b2));
 
 val_acc_history = zeros(5000, 1);
-loss_history = zeros(num_iters, 1);
+loss_history = zeros(5000, 1);
 
 
 % X_batch = X_val;
@@ -75,7 +77,7 @@ loss_history = zeros(num_iters, 1);
 % X_batch = X(:, :, :, batch_mask);
 % y_batch = y_tr(batch_mask);
 
-for i = 1:5000
+for i = 1:20
     %% sample one batch examples.
     batch_mask = randi(N, batch_size, 1);
     X_batch = X(:, :, :, batch_mask);
@@ -86,13 +88,15 @@ for i = 1:5000
     % [a, cache] = conv_relu_pool_forward(X_batch, W1, b1, conv_param, pool_param);
 %     [a, cache1] = conv_relu_forward(X_batch, W1, b1, conv_param1);
 %     [b, cache2] = conv_relu_pool_forward(a, W2, b2, conv_param2, pool_param);
+    
     [X_conv1, X_cols] = conv_forward(X_batch, W1, b1, conv_param1);
+    
     X_relu1 = max(0, X_conv1);
     
     [X_conv2, X_relu1_cols] = conv_forward(X_relu1, W2, b2, conv_param2);
     X_relu2 = max(0, X_conv2);
     
-    [X_pool, max_ind] = MaxPooling(X_relu2, [pool_param.height, pool_param.weight]);
+    [X_pool, max_ind] = MaxPooling(double(X_relu2), [pool_param.height, pool_param.weight]);
     
     % fully affine
     [scores, X_affine] = affine_forward(X_pool, W3, b3);
