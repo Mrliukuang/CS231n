@@ -21,7 +21,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     
     int stride = mxGetScalar(prhs[2]);
     
-    int d = mxGetNumberOfDimensions(M_IN);
+    // int d = mxGetNumberOfDimensions(M_IN);
      
     const mwSize *sz = mxGetDimensions(M_IN);
     int H = sz[0];
@@ -37,20 +37,23 @@ void mexFunction(int nlhs, mxArray *plhs[],
     M_OUT = mxCreateDoubleMatrix(C*filter_h*filter_w, N*HH*WW, mxREAL);
     B = mxGetPr(M_OUT);     // ptr B point to M_OUT data
     
+    
+    int x, y, B_h, B_w, t1, t2;
     for(w = 0; w < WW; w++) {
         for(h = 0; h < HH; h++) {
-            int x = w*stride;
-            int y = h*stride;
+            x = w*stride;
+            y = h*stride;
             
             for(n = 0; n < N; n++) {
                 for(c = 0; c < C; c++) {
                     for(ww = 0; ww < filter_w; ww++) {
                         for(hh = 0; hh < filter_h; hh++) {
-                            int B_h = hh + ww*filter_h + c*filter_sz;
-                            int B_w = n + h*N + w*N*HH;
-                            int t1 = y+hh;  // use tmp variable to match 'define' format
-                            int t2 = x+ww;
+                            B_h = hh + ww*filter_h + c*filter_sz;
+                            B_w = n + h*N + w*N*HH;
+                            t1 = y+hh;  // use tmp variable to match 'define' format
+                            t2 = x+ww;
                             B[B_h + B_w*C*filter_h*filter_w] = A(t1, t2, c, n);
+                          
                             // B[hh + ww*filter_h + c*filter_sz, n + h*N + w*N*HH] = A(y + hh, w + ww, c, n);
                             // mexPrintf("%lf ", A(y + hh,x + ww,c,n));
                             // mexPrintf("%d %d %d %d  ", y + hh, x + ww, c, n);

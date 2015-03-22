@@ -1,17 +1,20 @@
 function cols = im_2_col(X, filter_h, filter_w, conv_param)
     % This file is kind like matlab build-in 'im2col.m', but with strides.
-    [H, W, C, N] = size(X);
+%     [H, W, C, N] = size(X);
     pad = conv_param.pad;
     stride = conv_param.stride;
     
-    HH = (H + 2*pad - filter_h) / stride + 1;
-    WW = (W + 2*pad - filter_w) / stride + 1;
+%     HH = (H + 2*pad - filter_h) / stride + 1;
+%     WW = (W + 2*pad - filter_w) / stride + 1;
     
     X_padded = padarray(X, [pad, pad]);
-%     H = H+2*pad;
-%     W = W+2*pad;
-     
+    
+% Fastest method using c, 2X faster than Method #2    
     cols = im_2_col_c(X_padded, [filter_h, filter_w], stride);
+    
+    
+    
+% Method #2    
 %     cols = zeros(C*filter_h*filter_w, N*HH*WW);
 %     
 %     % this method is faster!
@@ -28,6 +31,9 @@ function cols = im_2_col(X, filter_h, filter_w, conv_param)
 %         end       
 %     end  
     
+
+
+% Method #3
 %  Fancy index method, but seems not better than the one above...
 %     layer_size = H*W;
 % %     filter_h = 3;
@@ -71,11 +77,9 @@ function cols = im_2_col(X, filter_h, filter_w, conv_param)
 %     cols = X_padded(t5);
     
     
-    
-    
-    
-    
-    % this method is simpler, but slower
+
+% Method #4
+% this method is simpler, but slower
 %     for n = 1:N
 %         for c = 1:C
 %             img = X_padded(:, :, c, n);
@@ -84,13 +88,4 @@ function cols = im_2_col(X, filter_h, filter_w, conv_param)
 %         
 %     end
     
-    
-    
-    
-    
-    
-    
-    
-
-
 end
