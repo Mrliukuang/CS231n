@@ -1,8 +1,11 @@
-function im = col_2_im(X, cols, filter_h, filter_w, conv_param)
-    [H, W, C, N] = size(X);
-    pad = conv_param.pad;
-    stride = conv_param.stride;
-    
+function im = col_2_im(X_size, cols, filter_h, filter_w, pad, stride)
+% [H, W, C, N] = size(X);
+%     pad = conv_param.pad;
+%     stride = conv_param.stride;
+    H = X_size(1);
+    W = X_size(2);
+    C = X_size(3);
+    N = X_size(4);
 % Method #1: using c
    im = col_2_im_c(cols, [H+2*pad, W+2*pad, C, N], [filter_h, filter_w], stride);
     

@@ -1,4 +1,6 @@
-function [scores, cache] = affine_forward(in, W, b)
+function [scores, cache] = affine_forward(in, layer)
+    W = layer.W;
+    b = layer.b;
     % in of shape [HH, WW, filter_n, N]
     [~, ~, ~, N] = size(in);
     

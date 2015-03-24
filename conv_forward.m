@@ -1,13 +1,22 @@
-function [X_conv, cols] = conv_forward(X, W1, b1, conv_param)
+function [X_conv, cols] = conv_forward(X, conv_layer)
     % TODO. try 'convn' in matlab
+    W1 = conv_layer.W;
+    b1 = conv_layer.b;
+    pad = conv_layer.pad;
+    stride = conv_layer.stride;
+    
     [H, W, ~, N] = size(X);
     [filter_h, filter_w, ~, filter_n] = size(W1);
     
     % output size
-    HH = (H + 2 * conv_param.pad - filter_h) / conv_param.stride + 1;
-    WW = (W + 2 * conv_param.pad - filter_w) / conv_param.stride + 1;
+    HH = (H + 2 * pad - filter_h) / stride + 1;
+    WW = (W + 2 * pad - filter_w) / stride + 1;
     
-    cols = im_2_col(X, filter_h, filter_w, conv_param);
+    if ~isa(X, 'double')
+        X = double(X);
+    end
+    
+    cols = im_2_col(X, filter_h, filter_w, pad, stride);
     W_r = reshape(W1, [], filter_n)';
     X_conv = bsxfun(@plus, W_r * cols, b1);
     

@@ -1,5 +1,8 @@
-function [dX_affined, dW2, db2] = affine_backward(X_affined, dscores, W2)
-    dW2 = X_affined * dscores';
-    db2 = sum(dscores, 2);
-    dX_affined = W2 * dscores;
+function [dX_affine, dW, db] = affine_backward(dscores, layer)
+    X_affine = layer.X_affine;
+    W = layer.W;
+    
+    dW = X_affine * dscores';
+    db = sum(dscores, 2);
+    dX_affine = W * dscores;
 end

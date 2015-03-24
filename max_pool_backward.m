@@ -1,7 +1,12 @@
-function dX_relu = max_pool_backward(X_pool, dX_pool, max_ind, pool_param)
+function dX_relu = max_pool_backward(dX_pool, layer)
+    X_pool = layer.X_pool;
+    max_ind = layer.max_ind;
+
     [HH, WW, C, N] = size(X_pool);
-    pool_h = pool_param.height;
-    pool_w = pool_param.weight;
+%     pool_h = pool_param.height;
+%     pool_w = pool_param.weight;
+    pool_h = layer.pool_size(1);
+    pool_w = layer.pool_size(2);
     
     H = HH * pool_h;
     W = WW * pool_w;

@@ -1,8 +1,6 @@
-function cols = im_2_col(X, filter_h, filter_w, conv_param)
+function cols = im_2_col(X, filter_h, filter_w, pad, stride)
     % This file is kind like matlab build-in 'im2col.m', but with strides.
 %     [H, W, C, N] = size(X);
-    pad = conv_param.pad;
-    stride = conv_param.stride;
     
 %     HH = (H + 2*pad - filter_h) / stride + 1;
 %     WW = (W + 2*pad - filter_w) / stride + 1;
