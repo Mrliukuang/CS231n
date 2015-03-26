@@ -1,5 +1,4 @@
 function [loss, scores, dscores, model] = pass_forward(X_batch, y_batch, model)
-    
     % Pass forward every layer of the model
     X_flow = X_batch;
     for i = 1:model.layer_num
@@ -17,6 +16,8 @@ function [loss, scores, dscores, model] = pass_forward(X_batch, y_batch, model)
                 model.layer{i}.X_pool = X_flow;
                 model.layer{i}.max_ind = max_ind;
             case 'fc'
+                model.layer{i}.input_size = size(X_flow);
+                
                 [scores, X_flow] = affine_forward(X_flow, model.layer{i});
                 model.layer{i}.X_affine = X_flow;
                 [loss, dscores] = softmax_loss(scores, y_batch);

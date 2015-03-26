@@ -24,7 +24,7 @@ function layer = init_layer(name, param)
     
     elseif strcmp(name, 'fc')
         % FC layer, param = input tall vector length
-        num_classes = 10;
+        num_classes = 7;
         layer.W = 1e-3 * randn(param, num_classes);
         layer.b = zeros(num_classes, 1);
         layer.num_classes = num_classes;

@@ -7,8 +7,10 @@ function model = pass_backward(model, dscores)
                 [dflow, dW, db] = affine_backward(dflow, model.layer{i});
                 model.layer{i}.dW = dW;
                 model.layer{i}.db = db;
+                
+                dflow = reshape(dflow, model.layer{i}.input_size);
             case 'pool'
-                dflow = reshape(dflow, size(model.layer{i}.X_pool));
+                % dflow = reshape(dflow, size(model.layer{i}.X_pool));
                 dflow = max_pool_backward(dflow, model.layer{i});
             case 'conv'
                % pass back ReLU layer

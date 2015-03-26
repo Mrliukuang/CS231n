@@ -35,6 +35,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     // mexPrintf("%lf %lf", A(1,1,1,1), A(4,2,2,2));
     
     M_OUT = mxCreateDoubleMatrix(C*filter_h*filter_w, N*HH*WW, mxREAL);
+    
     B = mxGetPr(M_OUT);     // ptr B point to M_OUT data
     
     

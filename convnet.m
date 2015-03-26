@@ -1,11 +1,11 @@
 % clear;
 clc; close all;
 addpath('.\util')
+addpath('.\data')
 % load convdata.mat;
 % load XY128
 % load CIFAR10_3D_zero_meaned.mat;
-
-% X_tr = double(X_tr);
+% load fer2013_zero_meaned.mat
 
 % load validation data
 % val_ind = randi(N, 500, 1);
@@ -33,10 +33,10 @@ best_acc = 0;
 best.loss = Inf;
 
 epoch_num = 20;
-batch_size = 128;
+batch_size = 30;
 its_per_epoch = uint32(N / batch_size);
 num_iters = epoch_num * its_per_epoch;
-lr = 0.005;   % learning rate
+lr = 0.01;   % learning rate
 lr_decay = 0.95;
 
 % step_cache{1} = zeros(size(W1));
@@ -50,19 +50,23 @@ val_acc_history = zeros(epoch_num, 1);
 % X_batch = X_val;
 % y_batch = y_val;
 
-batch_mask = randi(N, 20, 1);
+% batch_mask = randi(N, 20, 1);
 % X_batch = X(:, :, :, batch_mask);
 % y_batch = y(batch_mask);
-X_batch = X(:,:,:,1:50);
-y_batch = y(1:50);
+% X_batch = X(:,:,:,1:20);
+% y_batch = y(1:20);
 
 
-for i = 1:500
+for i = 1:3
     %% sample one batch examples.
-%     batch_mask = randi(N, batch_size, 1);
-%     X_batch = X(:, :, :, batch_mask);
-%     y_batch = y(batch_mask);
-  
+    batch_mask = randi(N, batch_size, 1);
+    X_batch = X(:, :, :, batch_mask);
+    y_batch = y(batch_mask);
+
+%     if ~isa(X_batch, 'double')
+%         X_batch = double(X_batch);
+%     end
+    
     [loss, scores, dscores, model] = pass_forward(X_batch, y_batch, model);
     model = pass_backward(model, dscores);
     
@@ -91,9 +95,6 @@ for i = 1:500
 %     end
 
     model = update_model(model, lr);
-
-
-    
     
 end
 
